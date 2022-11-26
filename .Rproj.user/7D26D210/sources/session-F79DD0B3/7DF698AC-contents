@@ -1,0 +1,20 @@
+---
+title: "Stroke"
+author: "Henry Siegler"
+date: "2022-11-26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(here)
+library(reshape2)
+```
+
+```{r}
+data <- read_csv(here("healthcare-dataset-stroke-data.csv"))
+```

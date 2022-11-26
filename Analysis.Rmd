@@ -1,0 +1,127 @@
+---
+title: "Credit Card"
+author: "Henry Siegler"
+date: "2022-11-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(here)
+library(reshape2)
+library(vtable)
+```
+
+```{r}
+data <- read_csv(here("BankChurners.csv", "BankChurners.csv"))
+```
+
+```{r}
+data <- data %>% 
+  mutate(Attrited = case_when(Attrition_Flag == "Existing Customer" ~ 0,
+                              Attrition_Flag == "Attrited Customer" ~ 1),
+         male = case_when(Gender == "M" ~ 1,
+                          Gender == "F" ~ 0),
+         married = case_when(Marital_Status == "Married" ~ 1, 
+                             TRUE ~ 0),
+         blue_card = case_when(Card_Category == "Blue" ~ 1,
+                               TRUE ~ 0),
+         
+         ) %>% 
+  select(-Naive_Bayes_Classifier_Attrition_Flag_Card_Category_Contacts_Count_12_mon_Dependent_count_Education_Level_Months_Inactive_12_mon_1,
+         -Naive_Bayes_Classifier_Attrition_Flag_Card_Category_Contacts_Count_12_mon_Dependent_count_Education_Level_Months_Inactive_12_mon_2)
+```
+
+### Descriptive Statistics
+#### Response Variable is Total Transaction Amount in the Last 12 Months (Total_Trans_Amt)
+
+```{r}
+data %>% 
+  select_if(is.numeric) %>% 
+  select(-CLIENTNUM) %>% 
+  cor() %>% 
+  round(2) %>% 
+  melt() %>% 
+  ggplot(aes(Var1, Var2, fill = value)) + 
+  geom_tile(color = "white")+
+ scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+   midpoint = 0, limit = c(-1,1), space = "Lab", 
+   name="Pearson\nCorrelation") +
+  theme_minimal()+ 
+ theme(axis.text.x = element_text(angle = 45, vjust = 1, 
+    size = 8, hjust = 1))+
+ coord_fixed()
+```
+
+```{r}
+cor_matrix <- cor(data %>% 
+                    select_if(is.numeric) %>% 
+                    select(-CLIENTNUM)) %>% 
+  round(2)
+
+cor_matrix %>% 
+  as.data.frame() %>% 
+  select(Total_Trans_Ct)
+```
+```{r}
+data %>% 
+  select_if(is.numeric) %>% 
+  select(-CLIENTNUM) %>% 
+  st(out = "return")
+```
+
+
+
+```{r}
+data %>% 
+  ggplot(aes(x = Total_Trans_Ct)) + 
+  geom_histogram()
+```
+
+
+```{r, fig.width = 5, fig.height = 10}
+data %>% 
+  ggplot(aes(x = Total_Trans_Ct)) + 
+  geom_histogram() + 
+  facet_wrap(~ Income_Category, ncol = 1)
+```
+
+```{r}
+data %>% 
+  ggplot(aes(x = Total_Trans_Ct)) + 
+  geom_histogram() + 
+  facet_wrap(~ Attrition_Flag, nrow = 2)
+
+```
+
+
+```{r}
+data %>% 
+  group_by(Total_Relationship_Count) %>% 
+  summarise(mean(Total_Trans_Ct))
+
+data %>% 
+  ggplot(aes(x = Total_Relationship_Count,
+             y = Total_Trans_Ct)) + 
+  geom_bar(stat = "summary",
+           fun = mean,
+           fill = "dodgerblue")
+```
+
+
+### Data Visualization
+
+```{r}
+data %>% 
+  ggplot(aes(x = Total_Trans_Amt, y = Total_Trans_Ct, color = Attrition_Flag)) + 
+  geom_point()
+```
+
+
+

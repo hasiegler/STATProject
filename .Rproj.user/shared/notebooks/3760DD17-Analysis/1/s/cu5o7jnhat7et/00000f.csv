@@ -1,0 +1,3 @@
+"0","data %>% "
+"0","  group_by(Total_Relationship_Count) %>% "
+"0","  summarise(mean(Total_Trans_Ct))"

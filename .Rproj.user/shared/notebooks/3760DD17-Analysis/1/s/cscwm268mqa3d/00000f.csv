@@ -1,0 +1,9 @@
+"0","data <- read_csv(here(""BankChurners.csv"", ""BankChurners.csv""))"
+"2","[1mRows: [22m[34m10127[39m [1mColumns: [22m[34m23[39m"
+"2","[36m──[39m [1mColumn specification[22m [36m───────────────────────────────────────────────────────────────────────────────────────────────────[39m
+[1mDelimiter:[22m "",""
+[31mchr[39m  (6): Attrition_Flag, Gender, Education_Level, Marital_Status, Income_Category, Card_Category
+[32mdbl[39m (17): CLIENTNUM, Customer_Age, Dependent_count, Months_on_book, Total_Relationship_Count, Months_Inactive_12_mon, C..."
+"2","
+[36mℹ[39m Use `spec()` to retrieve the full column specification for this data.
+[36mℹ[39m Specify the column types or set `show_col_types = FALSE` to quiet this message."

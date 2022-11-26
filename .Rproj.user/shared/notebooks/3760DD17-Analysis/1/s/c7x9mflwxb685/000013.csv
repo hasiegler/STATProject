@@ -1,0 +1,8 @@
+"0","cor_matrix <- cor(data %>% "
+"0","                    select_if(is.numeric) %>% "
+"0","                    select(-CLIENTNUM)) %>% "
+"0","  round(2)"
+"0",""
+"0","cor_matrix %>% "
+"0","  as.data.frame() %>% "
+"0","  select(Total_Trans_Ct)"
