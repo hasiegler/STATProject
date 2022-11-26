@@ -3,7 +3,7 @@
     "path": "C:/Users/hasie/Desktop/STATProject/Analysis.Rmd",
     "project_path": "Analysis.Rmd",
     "type": "r_markdown",
-    "hash": "1540935931",
+    "hash": "3833954501",
     "contents": "",
     "dirty": false,
     "created": 1669417717324.0,
@@ -13,16 +13,16 @@
         "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "10,37",
+        "cursorPosition": "4,14",
         "scrollLine": "0",
         "last_setup_crc32": "F79DD0B3bb338d19"
     },
     "folds": "",
-    "lastKnownWriteTime": 1669433380,
+    "lastKnownWriteTime": 1669433692,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1669433380408,
+    "last_content_update": 1669433692974,
     "read_only": false,
     "read_only_alternatives": []
 }

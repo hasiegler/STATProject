@@ -2,7 +2,7 @@
 title: "Credit Card"
 author: "Henry Siegler"
 date: "2022-11-25"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
