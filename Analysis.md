@@ -223,3 +223,71 @@ training_data <- data %>%
 test_data <- data %>% 
   anti_join(training_data, by = 'id')
 ```
+
+### Linear Regression
+
+Explanatory Variable: Total_Trans_Amt Response Variable: Total_Trans_Ct
+
+As we can see in the scatter plot, the relationship between total
+transaction count and total transaction amount is not linear, so we must
+apply transformations to make the relationship linear.
+
+``` r
+training_data2 <- training_data %>% 
+  mutate(sqrt_total_trans_amt = sqrt(Total_Trans_Amt),
+         total_trans_ct_squared = Total_Trans_Ct^2)
+```
+
+``` r
+training_data2 %>% 
+  ggplot(aes(x = sqrt_total_trans_amt, y = total_trans_ct_squared)) + 
+  geom_point()
+```
+
+![](Analysis_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+
+Linearity looks good, equal error variance does not appear to be
+satisfied. We have increasing variance, so we want to decrease the power
+of Y. We will first try the square root of Y instead of Y squared.
+
+``` r
+training_data2 <- training_data2 %>% 
+  mutate(sqrt_total_trans_ct = sqrt(Total_Trans_Ct))
+```
+
+``` r
+training_data2 %>% 
+  ggplot(aes(x = sqrt_total_trans_amt, y = sqrt_total_trans_ct)) + 
+  geom_point()
+```
+
+![](Analysis_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+
+Equal error variance looks like it is satisfied, however linearity does
+not look ideal. Therefore, we want to try to find a transformation for Y
+that is between Y^0.5 and Y^2.
+
+We will raise total transaction count to the power of 0.8 because this
+transforming keeps the relationship fairly linear and maintains fairly
+equal error variance.
+
+``` r
+training_data2 <- training_data2 %>% 
+  mutate(total_trans_ct_transformed = Total_Trans_Ct^0.8)
+```
+
+``` r
+training_data2 %>% 
+  ggplot(aes(x = sqrt_total_trans_amt, y = total_trans_ct_transformed)) + 
+  geom_point()
+```
+
+![](Analysis_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+
+Therefore our final transformations for simple linear regression between
+Total_Trans_Amt and Total_Trans_Ct are:
+
+X’ =
+![\sqrt{Total\\\_Trans\\\_Amt}](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;%5Csqrt%7BTotal%5C_Trans%5C_Amt%7D "\sqrt{Total\_Trans\_Amt}")
+Y’ =
+![Total\\\_Trans\\\_Ct^{0.8}](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;Total%5C_Trans%5C_Ct%5E%7B0.8%7D "Total\_Trans\_Ct^{0.8}")

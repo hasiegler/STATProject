@@ -136,7 +136,6 @@ data %>%
 
 ### Splitting the Data
 
-
 ```{r}
 set.seed(9)
 data$id <- 1:nrow(data)
@@ -149,8 +148,57 @@ test_data <- data %>%
 ```
 
 
+### Linear Regression
 
+Explanatory Variable: Total_Trans_Amt
+Response Variable: Total_Trans_Ct
 
+As we can see in the scatter plot, the relationship between total transaction count and total transaction amount is not linear, so we must apply transformations to make the relationship linear. 
+
+```{r}
+training_data2 <- training_data %>% 
+  mutate(sqrt_total_trans_amt = sqrt(Total_Trans_Amt),
+         total_trans_ct_squared = Total_Trans_Ct^2)
+```
+
+```{r}
+training_data2 %>% 
+  ggplot(aes(x = sqrt_total_trans_amt, y = total_trans_ct_squared)) + 
+  geom_point()
+```
+
+Linearity looks good, equal error variance does not appear to be satisfied. We have increasing variance, so we want to decrease the power of Y. We will first try the square root of Y instead of Y squared.
+
+```{r}
+training_data2 <- training_data2 %>% 
+  mutate(sqrt_total_trans_ct = sqrt(Total_Trans_Ct))
+```
+
+```{r}
+training_data2 %>% 
+  ggplot(aes(x = sqrt_total_trans_amt, y = sqrt_total_trans_ct)) + 
+  geom_point()
+```
+
+Equal error variance looks like it is satisfied, however linearity does not look ideal. Therefore, we want to try to find a transformation for Y that is between Y^0.5 and Y^2. 
+
+We will raise total transaction count to the power of 0.8 because this transforming keeps the relationship fairly linear and maintains fairly equal error variance.
+
+```{r}
+training_data2 <- training_data2 %>% 
+  mutate(total_trans_ct_transformed = Total_Trans_Ct^0.8)
+```
+
+```{r}
+training_data2 %>% 
+  ggplot(aes(x = sqrt_total_trans_amt, y = total_trans_ct_transformed)) + 
+  geom_point()
+```
+
+Therefore our final transformations for simple linear regression between Total_Trans_Amt and Total_Trans_Ct are:
+
+X' = $\sqrt{Total\_Trans\_Amt}$
+Y' = $Total\_Trans\_Ct^{0.8}$
 
 
 
