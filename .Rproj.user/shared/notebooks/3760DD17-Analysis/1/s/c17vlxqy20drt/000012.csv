@@ -1,4 +1,0 @@
-"0","data %>% "
-"0","  select_if(is.numeric) %>% "
-"0","  select(-CLIENTNUM) %>% "
-"0","  st(out = ""return"")"

@@ -1,3 +1,0 @@
-"0","data %>% "
-"0","  ggplot(aes(x = Total_Trans_Amt, y = Total_Trans_Ct, color = Attrition_Flag)) + "
-"0","  geom_point()"

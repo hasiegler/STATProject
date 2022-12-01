@@ -24,27 +24,30 @@ data <- read_csv(here("BankChurners.csv", "BankChurners.csv"))
 
 ```{r}
 data <- data %>% 
-  mutate(Attrited = case_when(Attrition_Flag == "Existing Customer" ~ 0,
+  mutate(Exited = case_when(Attrition_Flag == "Existing Customer" ~ 0,
                               Attrition_Flag == "Attrited Customer" ~ 1),
          male = case_when(Gender == "M" ~ 1,
                           Gender == "F" ~ 0),
-         married = case_when(Marital_Status == "Married" ~ 1, 
-                             TRUE ~ 0),
-         blue_card = case_when(Card_Category == "Blue" ~ 1,
-                               TRUE ~ 0),
-         
          ) %>% 
   select(-Naive_Bayes_Classifier_Attrition_Flag_Card_Category_Contacts_Count_12_mon_Dependent_count_Education_Level_Months_Inactive_12_mon_1,
-         -Naive_Bayes_Classifier_Attrition_Flag_Card_Category_Contacts_Count_12_mon_Dependent_count_Education_Level_Months_Inactive_12_mon_2)
+         -Naive_Bayes_Classifier_Attrition_Flag_Card_Category_Contacts_Count_12_mon_Dependent_count_Education_Level_Months_Inactive_12_mon_2,
+         -Gender,
+         -Attrition_Flag,
+         -CLIENTNUM)
 ```
 
 ### Descriptive Statistics
-#### Response Variable is Total Transaction Amount in the Last 12 Months (Total_Trans_Amt)
+#### Response Variable is Total Transaction Count
 
 ```{r}
 data %>% 
   select_if(is.numeric) %>% 
-  select(-CLIENTNUM) %>% 
+  st(out = "return")
+```
+
+```{r}
+data %>% 
+  select_if(is.numeric) %>% 
   cor() %>% 
   round(2) %>% 
   melt() %>% 
@@ -58,25 +61,30 @@ data %>%
     size = 8, hjust = 1))+
  coord_fixed()
 ```
+We can see from the correlation matrix that Avg_Open_To_Buy is highly correlated with Credit_Limit, so we will remove Avg_Open_To_Buy because it is redundant to keep it.
+
+```{r}
+cor(data$Avg_Open_To_Buy, data$Credit_Limit)
+```
+```{r}
+data <- data %>% 
+  select(-Avg_Open_To_Buy)
+```
+
+
 
 ```{r}
 cor_matrix <- cor(data %>% 
-                    select_if(is.numeric) %>% 
-                    select(-CLIENTNUM)) %>% 
+                    select_if(is.numeric)) %>% 
   round(2)
 
 cor_matrix %>% 
   as.data.frame() %>% 
-  select(Total_Trans_Ct)
-```
-```{r}
-data %>% 
-  select_if(is.numeric) %>% 
-  select(-CLIENTNUM) %>% 
-  st(out = "return")
+  select(Total_Trans_Ct) %>% 
+  arrange(Total_Trans_Ct)
 ```
 
-
+Now we will explore the Total_Trans_Ct variable and its relationship with other correlated variables in our data. 
 
 ```{r}
 data %>% 
@@ -92,14 +100,16 @@ data %>%
   facet_wrap(~ Income_Category, ncol = 1)
 ```
 
+For all of the income categories, we see a bimodal histogram for the Total_Trans_Ct. For people in the income category of less than $40K, we see that there is a larger spike in the second peak of the histogram compared to the other income categories.
+
 ```{r}
 data %>% 
   ggplot(aes(x = Total_Trans_Ct)) + 
   geom_histogram() + 
-  facet_wrap(~ Attrition_Flag, nrow = 2)
-
+  facet_wrap(~ Exited, nrow = 2)
 ```
 
+We can see that the Total Transaction Counts for the customers who have have attrited has a unimodal distribution, with the center of the peak being significantly below where most of the Transaction Counts are for the customers who have not attrited. 
 
 ```{r}
 data %>% 
@@ -107,7 +117,7 @@ data %>%
   summarise(mean(Total_Trans_Ct))
 
 data %>% 
-  ggplot(aes(x = Total_Relationship_Count,
+  ggplot(aes(x = as.factor(Total_Relationship_Count),
              y = Total_Trans_Ct)) + 
   geom_bar(stat = "summary",
            fun = mean,
@@ -119,9 +129,36 @@ data %>%
 
 ```{r}
 data %>% 
-  ggplot(aes(x = Total_Trans_Amt, y = Total_Trans_Ct, color = Attrition_Flag)) + 
-  geom_point()
+  ggplot(aes(x = Total_Trans_Amt, y = Total_Trans_Ct, color = as.factor(Exited))) + 
+  geom_point(alpha = 0.3) + 
+  geom_smooth(method = "lm", formula = y ~ poly(x, 3), se = FALSE)
 ```
+
+### Splitting the Data
+
+
+```{r}
+set.seed(9)
+data$id <- 1:nrow(data)
+
+training_data <- data %>% 
+  sample_frac(0.7)
+
+test_data <- data %>% 
+  anti_join(training_data, by = 'id')
+```
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
