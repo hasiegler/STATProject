@@ -1,7 +1,6 @@
-Credit Card
+Credit Card Customer Analysis
 ================
-Henry Siegler
-2022-11-25
+Henry Siegler, Jake Ketchner, Esteban Anderson, Alex Fugate
 
 ``` r
 library(tidyverse)
@@ -9,6 +8,35 @@ library(here)
 library(reshape2)
 library(vtable)
 ```
+
+## Introduction
+
+This report is an investigation analyzing data on credit card customers
+for a particular company to learn about the relationship between various
+attributes of the credit card customers, such as their spending habits
+and whether or not they are still current customers. The data was
+obtained from kaggle [at this
+link](https://www.kaggle.com/code/atillazkaymak/credit-card-customer-churn-prediction/data?select=BankChurners.csv).
+The dataset is from an unknown credit card company and we only are
+provided data for some of their customers that use of used to use their
+credit card to some degree. We have 10,127 total observations. Each
+observational unit in the study is a customer of the credit card
+company, and the variables that we are focusing on are total transaction
+amount in the past 12 months (in dollars), total transaction count in
+the past 12 months, whether or not the customer is still with the
+company (binary), total number of products held by the customer, and the
+customer’s credit limit (in dollars). For the simple and multiple linear
+regression sections, we are considering total transaction count in the
+past 12 months the response variable. For the logistic regression
+section, whether or not the customer exited is the response variable,
+which is a binary variable equal to 1 if the customer exited. Initially,
+we hypothesize that total transaction amount and total transaction count
+would be positively and linearly related, as it makes sense for
+increased spending to be associated with an increased number of
+transactions. We hypothesize that total transaction count to be
+negatively correlated with if the customer exited, and positively
+correlated with both credit limit and total number of products held by
+the customer.
 
 ``` r
 data <- read_csv(here("BankChurners.csv", "BankChurners.csv"))
@@ -28,14 +56,16 @@ data <- data %>%
          -CLIENTNUM)
 ```
 
-### Descriptive Statistics
+## Descriptive Statistics
 
-#### Response Variable is Total Transaction Count
+**Response Variable is Total Transaction Count**
 
 ``` r
-data %>% 
+descriptive_stats <- data %>% 
   select_if(is.numeric) %>% 
   st(out = "return")
+
+descriptive_stats
 ```
 
     ##                    Variable     N     Mean Std. Dev.    Min Pctl. 25 Pctl. 75
@@ -73,6 +103,9 @@ data %>%
     ## 15     1
     ## 16     1
 
+The customers have an avergage Total_Relatioship_Count (total number of
+products held by the customer) of 3.8, with t
+
 ``` r
 data %>% 
   select_if(is.numeric) %>% 
@@ -80,26 +113,29 @@ data %>%
   round(2) %>% 
   melt() %>% 
   ggplot(aes(Var1, Var2, fill = value)) + 
-  geom_tile(color = "white")+
- scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
-   midpoint = 0, limit = c(-1,1), space = "Lab", 
-   name="Pearson\nCorrelation") +
-  theme_minimal()+ 
- theme(axis.text.x = element_text(angle = 45, vjust = 1, 
-    size = 8, hjust = 1))+
- coord_fixed()
+  geom_tile(color = "white") + 
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+                       midpoint = 0, limit = c(-1,1), space = "Lab", 
+                       name="Pearson\nCorrelation") +
+  theme_minimal() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1.1, size = 8, hjust = 1.1),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank()) + 
+  coord_fixed() + 
+  labs(title = "Correlation Matrix of All Numeric Variables")
 ```
 
 ![](Analysis_files/figure-gfm/unnamed-chunk-5-1.png)<!-- --> We can see
-from the correlation matrix that Avg_Open_To_Buy is highly correlated
-with Credit_Limit, so we will remove Avg_Open_To_Buy because it is
-redundant to keep it.
+from the correlation matrix that **Avg_Open_To_Buy** is highly
+correlated with **Credit_Limit**, so we will remove **Avg_Open_To_Buy**
+because it is redundant to keep both of these variables.
 
 ``` r
-cor(data$Avg_Open_To_Buy, data$Credit_Limit)
+cor <- cor(data$Avg_Open_To_Buy, data$Credit_Limit)
+cat("Correlation between these variables:", cor)
 ```
 
-    ## [1] 0.9959805
+    ## Correlation between these variables: 0.9959805
 
 ``` r
 data <- data %>% 
@@ -291,3 +327,12 @@ X’ =
 ![\sqrt{Total\\\_Trans\\\_Amt}](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;%5Csqrt%7BTotal%5C_Trans%5C_Amt%7D "\sqrt{Total\_Trans\_Amt}")
 Y’ =
 ![Total\\\_Trans\\\_Ct^{0.8}](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;Total%5C_Trans%5C_Ct%5E%7B0.8%7D "Total\_Trans\_Ct^{0.8}")
+
+``` r
+data %>% 
+  ggplot(aes(x = Total_Relationship_Count,
+             y= Total_Trans_Ct)) + 
+  geom_point(alpha = 0.05)
+```
+
+![](Analysis_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->

@@ -1,7 +1,6 @@
 ---
-title: "Credit Card"
-author: "Henry Siegler"
-date: "2022-11-25"
+title: "Credit Card Customer Analysis"
+author: "Henry Siegler, Jake Ketchner, Esteban Anderson, Alex Fugate"
 output: github_document
 ---
 
@@ -17,6 +16,10 @@ library(here)
 library(reshape2)
 library(vtable)
 ```
+
+## Introduction
+
+This report is an investigation analyzing data on credit card customers for a particular company to learn about the relationship between various attributes of the credit card customers, such as their spending habits and whether or not they are still current customers. The data was obtained from kaggle [at this link](https://www.kaggle.com/code/atillazkaymak/credit-card-customer-churn-prediction/data?select=BankChurners.csv). The dataset is from an unknown credit card company and we only are provided data for some of their customers that use of used to use their credit card to some degree. We have 10,127 total observations. Each observational unit in the study is a customer of the credit card company, and the variables that we are focusing on are total transaction amount in the past 12 months (in dollars), total transaction count in the past 12 months, whether or not the customer is still with the company (binary), total number of products held by the customer, and the customer's credit limit (in dollars). For the simple and multiple linear regression sections, we are considering total transaction count in the past 12 months the response variable. For the logistic regression section, whether or not the customer exited is the response variable, which is a binary variable equal to 1 if the customer exited. Initially, we hypothesize that total transaction amount and total transaction count would be positively and linearly related, as it makes sense for increased spending to be associated with an increased number of transactions. We hypothesize that total transaction count to be negatively correlated with if the customer exited, and positively correlated with both credit limit and total number of products held by the customer. 
 
 ```{r}
 data <- read_csv(here("BankChurners.csv", "BankChurners.csv"))
@@ -36,14 +39,18 @@ data <- data %>%
          -CLIENTNUM)
 ```
 
-### Descriptive Statistics
-#### Response Variable is Total Transaction Count
+## Descriptive Statistics
+ 
+__Response Variable is Total Transaction Count__
 
 ```{r}
-data %>% 
+descriptive_stats <- data %>% 
   select_if(is.numeric) %>% 
   st(out = "return")
+
+descriptive_stats
 ```
+
 
 ```{r}
 data %>% 
@@ -52,26 +59,27 @@ data %>%
   round(2) %>% 
   melt() %>% 
   ggplot(aes(Var1, Var2, fill = value)) + 
-  geom_tile(color = "white")+
- scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
-   midpoint = 0, limit = c(-1,1), space = "Lab", 
-   name="Pearson\nCorrelation") +
-  theme_minimal()+ 
- theme(axis.text.x = element_text(angle = 45, vjust = 1, 
-    size = 8, hjust = 1))+
- coord_fixed()
+  geom_tile(color = "white") + 
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+                       midpoint = 0, limit = c(-1,1), space = "Lab", 
+                       name="Pearson\nCorrelation") +
+  theme_minimal() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1.1, size = 8, hjust = 1.1),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank()) + 
+  coord_fixed() + 
+  labs(title = "Correlation Matrix of All Numeric Variables")
 ```
-We can see from the correlation matrix that Avg_Open_To_Buy is highly correlated with Credit_Limit, so we will remove Avg_Open_To_Buy because it is redundant to keep it.
+We can see from the correlation matrix that __Avg_Open_To_Buy__ is highly correlated with __Credit_Limit__, so we will remove __Avg_Open_To_Buy__ because it is redundant to keep both of these variables. We can see that __Total_Trans_Ct__ is highly correlated with __Total_Trans_Amt__, which is what we would expect. __Total_Trans_Ct__, the response variable, is moderately negatively correlated with __Total_Relationship_Count__, which is not what we would expect, because we would expect customers with more products with the company to have more transactions. The response is also moderately negatively correlated with __Exited__, which makes sense because we would expect the customers who are not using the company now to have less total transactions.
 
 ```{r}
-cor(data$Avg_Open_To_Buy, data$Credit_Limit)
+cor <- cor(data$Avg_Open_To_Buy, data$Credit_Limit)
+cat("Correlation between Avg_Open_To_Buy and Credit_Limit:", cor)
 ```
 ```{r}
 data <- data %>% 
   select(-Avg_Open_To_Buy)
 ```
-
-
 
 ```{r}
 cor_matrix <- cor(data %>% 
@@ -84,32 +92,39 @@ cor_matrix %>%
   arrange(Total_Trans_Ct)
 ```
 
-Now we will explore the Total_Trans_Ct variable and its relationship with other correlated variables in our data. 
+Looking at the actual correlations between the response variable and all of the explanatory variables, we can see that the variables with the highest correlation are __Total_Trans_Amt__, __Exited__, __Total_Relationship_Count__, and __Contacts_Count_12_mon__.
+
+Now we will explore the __Total_Trans_Ct variable__ and its relationship with other correlated variables in our data. 
 
 ```{r}
 data %>% 
   ggplot(aes(x = Total_Trans_Ct)) + 
-  geom_histogram()
+  geom_histogram(fill = "dodgerblue") + 
+  labs(x= "Total Transaction Count",
+       title = "Distribution of Total Transaction Count")
 ```
 
 
-```{r, fig.width = 5, fig.height = 10}
+```{r, fig.width = 3, fig.height = 6}
 data %>% 
   ggplot(aes(x = Total_Trans_Ct)) + 
   geom_histogram() + 
-  facet_wrap(~ Income_Category, ncol = 1)
+  facet_wrap(~ Income_Category, ncol = 1) + 
+  labs(x = "Total Transaction Count")
 ```
 
-For all of the income categories, we see a bimodal histogram for the Total_Trans_Ct. For people in the income category of less than $40K, we see that there is a larger spike in the second peak of the histogram compared to the other income categories.
+For all of the income categories, we see a bimodal distribution for the __Total_Trans_Ct__. For people in the income category of "less than $40K", we see that there is a larger spike in the second peak of the histogram compared to the other income categories. However, looking at the general distribution of total transaction count across the different income levels, the distributions look pretty similar and have similar centers and averages, so it does not appear that income category is related to the response.
 
 ```{r}
 data %>% 
   ggplot(aes(x = Total_Trans_Ct)) + 
   geom_histogram() + 
-  facet_wrap(~ Exited, nrow = 2)
+  facet_wrap(~ Exited, nrow = 2) + 
+  labs(x = "Total Transaction Count",
+       title = "Distribution of Total Transaction Count by Exit Status")
 ```
 
-We can see that the Total Transaction Counts for the customers who have have attrited has a unimodal distribution, with the center of the peak being significantly below where most of the Transaction Counts are for the customers who have not attrited. 
+We can see that the Total Transaction Counts for the customers who have have exited has a unimodal distribution, with the center of the peak being significantly below where most of the Transaction Counts are for the customers who have not exited. The average total transaction count for those who have exited appears to be about 35 transactions, but that number is around 70 for those who have not exited. Therefore, exited does appear to be very related to the response.
 
 ```{r}
 data %>% 
@@ -121,9 +136,11 @@ data %>%
              y = Total_Trans_Ct)) + 
   geom_bar(stat = "summary",
            fun = mean,
-           fill = "dodgerblue")
+           fill = "dodgerblue") + 
+  labs(x = "Total Number of Products the Customer Has", 
+        y= "Average Total Transaction Count")
 ```
-
+The average total transactions is smaller for the groups of people with 3, 4, 5 and 6 products compared to those with only 1 or 2 products. Total Relationship Count (total number of products a customer has), appears to have a relationship with the response.
 
 ### Data Visualization
 
@@ -131,10 +148,17 @@ data %>%
 data %>% 
   ggplot(aes(x = Total_Trans_Amt, y = Total_Trans_Ct, color = as.factor(Exited))) + 
   geom_point(alpha = 0.3) + 
-  geom_smooth(method = "lm", formula = y ~ poly(x, 3), se = FALSE)
+  geom_smooth(method = "lm", formula = y ~ poly(x, 3), se = FALSE) + 
+  labs(x = "Total Transaction Count", 
+       y = "Total Transaction Amount",
+       color = "Exit Status",
+       title = "Third Degree Polynomial Smoother for Customers who did and did not Exit") + 
+  scale_color_manual(labels = c("Did not Exit", "Exited"), values = c("dodgerblue", "orange"))
 ```
 
-### Splitting the Data
+Based on the scatterplot between total transaction count and total transaction amount, we can see that the data appears to form 3 clusters, and there are no customers who exited that were in the 3rd cluster with the highest values. Also, the data for both customers who exited and did not exit appears to follow a 3rd degree polynomial relationship pretty well.
+
+## Splitting the Data
 
 ```{r}
 set.seed(9)
@@ -147,8 +171,9 @@ test_data <- data %>%
   anti_join(training_data, by = 'id')
 ```
 
+We randomly selected 80% of the observations and placed those into a training dataset. The remaining 20% of the data were placed into a testing dataset.
 
-### Linear Regression
+# Linear Regression
 
 Explanatory Variable: Total_Trans_Amt
 Response Variable: Total_Trans_Ct
@@ -195,10 +220,18 @@ training_data2 %>%
   geom_point()
 ```
 
-Therefore our final transformations for simple linear regression between Total_Trans_Amt and Total_Trans_Ct are:
+Therefore our final transformations for simple linear regression between Total_Trans_Amt and Total_Trans_Ct are: 
 
 X' = $\sqrt{Total\_Trans\_Amt}$
 Y' = $Total\_Trans\_Ct^{0.8}$
+
+```{r}
+data %>% 
+  ggplot(aes(x = Total_Relationship_Count,
+             y= Total_Trans_Ct)) + 
+  geom_point(alpha = 0.05)
+```
+
 
 
 
