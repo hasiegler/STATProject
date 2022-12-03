@@ -175,65 +175,91 @@ We randomly selected 80% of the observations and placed those into a training da
 
 # Linear Regression
 
-Explanatory Variable: Total_Trans_Amt
-Response Variable: Total_Trans_Ct
+Explanatory Variable: __Total_Trans_Amt__
+Response Variable: __Total_Trans_Ct__
 
 As we can see in the scatter plot, the relationship between total transaction count and total transaction amount is not linear, so we must apply transformations to make the relationship linear. 
 
-```{r}
-training_data2 <- training_data %>% 
-  mutate(sqrt_total_trans_amt = sqrt(Total_Trans_Amt),
-         total_trans_ct_squared = Total_Trans_Ct^2)
-```
+### Attempt #1
+
+First, we will try decreasing the power of the X variable, by taking the square root. Also, we will increase the power of Y, by squaring the Y variable.
 
 ```{r}
-training_data2 %>% 
-  ggplot(aes(x = sqrt_total_trans_amt, y = total_trans_ct_squared)) + 
-  geom_point()
+training_data %>% 
+  ggplot(aes(x = Total_Trans_Amt^0.5, y = Total_Trans_Ct^2)) + 
+  geom_point(alpha = 0.3, color = "dodgerblue") + 
+  labs(x = "Square Root Total Transaction Amount",
+       y = "Total Transaction Count Squared") + 
+  geom_smooth(method = "lm", color = "red")
 ```
 
-Linearity looks good, equal error variance does not appear to be satisfied. We have increasing variance, so we want to decrease the power of Y. We will first try the square root of Y instead of Y squared.
+Linearity looks better, but equal error variance does not appear to be satisfied. We have increasing variance, so we want to decrease the power of Y to fix the unequal error variance. We will first try the square root of Y instead of Y squared.
+
+### Attempt #2
 
 ```{r}
-training_data2 <- training_data2 %>% 
-  mutate(sqrt_total_trans_ct = sqrt(Total_Trans_Ct))
+training_data %>% 
+  ggplot(aes(x = sqrt(Total_Trans_Amt), y = sqrt(Total_Trans_Ct))) +
+  geom_point(alpha = 0.3, color = "dodgerblue") + 
+  labs(x = "Square Root Total Transaction Amount",
+       y = "Square Root Total Transaction Count") + 
+  geom_smooth(method = "lm", color = "red")
 ```
+
+Equal error variance looks like it is satisfied, however linearity does not look ideal. Therefore, we want to try to find a transformation for Y that is between $Y^{0.5}$ and $Y^2$. 
+
+### Attempt #3
 
 ```{r}
-training_data2 %>% 
-  ggplot(aes(x = sqrt_total_trans_amt, y = sqrt_total_trans_ct)) + 
-  geom_point()
+training_data %>% 
+  ggplot(aes(x = sqrt(Total_Trans_Amt), y = Total_Trans_Ct^0.8)) + 
+  geom_point(alpha = 0.3, color = "dodgerblue") + 
+  labs(x = "Square Root Total Transaction Amount",
+       y = "Total Transaction Count to the Power of 0.8") + 
+  geom_smooth(method = "lm", color = "red")
 ```
 
-Equal error variance looks like it is satisfied, however linearity does not look ideal. Therefore, we want to try to find a transformation for Y that is between Y^0.5 and Y^2. 
+Raising total transaction count to the power of 0.8 keeps the relationship fairly linear and maintains fairly equal error variance. However, linearity does not look perfect, so let us continue to decrease the power of X
 
-We will raise total transaction count to the power of 0.8 because this transforming keeps the relationship fairly linear and maintains fairly equal error variance.
+### Attempt #4
+
+Decreasing the power of X from 0.5 to 0.1, we get the following:
 
 ```{r}
-training_data2 <- training_data2 %>% 
-  mutate(total_trans_ct_transformed = Total_Trans_Ct^0.8)
+training_data %>% 
+  ggplot(aes(x = Total_Trans_Amt^0.1, y = Total_Trans_Ct^0.8)) + 
+  geom_point(alpha = 0.3, color = "dodgerblue") + 
+  labs(x = "Square Root Total Transaction Amount",
+       y = "Total Transaction Count to the Power of 0.8") + 
+  geom_smooth(method = "lm", color = "red")
 ```
+These transformations seem to do the best job at linearizing the data, while retaining equal error variances.
 
-```{r}
-training_data2 %>% 
-  ggplot(aes(x = sqrt_total_trans_amt, y = total_trans_ct_transformed)) + 
-  geom_point()
-```
+Therefore our final transformations for simple linear regression between __Total_Trans_Amt__ and __Total_Trans_Ct__ are: 
 
-Therefore our final transformations for simple linear regression between Total_Trans_Amt and Total_Trans_Ct are: 
-
-X' = $\sqrt{Total\_Trans\_Amt}$
+X' = $Total\_Trans\_Amt^{0.1}$
 Y' = $Total\_Trans\_Ct^{0.8}$
 
+## Residual Analysis
+
+__Equal Error Variance__
+
 ```{r}
-data %>% 
-  ggplot(aes(x = Total_Relationship_Count,
-             y= Total_Trans_Ct)) + 
-  geom_point(alpha = 0.05)
+model <- lm(I(Total_Trans_Ct^0.8) ~ I(Total_Trans_Amt^0.1), data = training_data)
+training_data$predictions <- predict(model)
+training_data$residual <- training_data$Total_Trans_Ct^0.8 - training_data$predictions
 ```
 
+```{r}
+training_data %>% 
+  ggplot(aes(x = predictions, y = residual)) + 
+  geom_point(color = "dodgerblue", alpha = 0.3) + 
+  labs(x = "Residual by Predicted Plot")
+```
 
+__Linearity__
 
+![Alt text](C:\Users\hasie\Desktop\STATProject\SL1.jpg)
 
 
 
