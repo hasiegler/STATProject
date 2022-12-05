@@ -162,7 +162,7 @@ From our descriptive statistics earlier, we found that there were no extremely l
 
 Running a simple linear regression model predicting total transction count from total transaction amount, we see the following Cooks D values:
 
-![Alt text](C:\Users\hasie\Desktop\STATProject\SL12.jpg)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/SL12.jpg?raw=true)
 
 All of the Cook's D values are very low, because they are much lower than 1. However, a few observations do stick out more than others; 2 of the observations have values of about 0.008. 
 
@@ -282,13 +282,13 @@ training_data %>%
   geom_point(color = "dodgerblue", alpha = 0.3) + 
   labs(x = "Predicted")
 ```
-![Alt text](C:\Users\hasie\Desktop\STATProject\SL2.jpg)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/SL2.jpg?raw=true)
 
 Based on the residual by predicted plot and the Brown-Forsythe small p value, we can conclude that equal error variance is not satisfied. There residuals seem to fan out as the predicted value increases.
 
 __Linearity__
 
-![Alt text](C:\Users\hasie\Desktop\STATProject\SL1.jpg)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/SL1.jpg?raw=true)
 
 Linearity also does not look to be fully satisfied, with an F Ratio of 1.547 and a very small p value. Two of our assumptions are already violated so we will try new transformations. 
 
@@ -318,33 +318,33 @@ training_data %>%
   labs(x = "Residual by Predicted Plot")
 ```
 
-![Alt text](C:\Users\hasie\Desktop\STATProject\SL3.jpg)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/SL3.jpg?raw=true)
 
 With this new transformation, we now see that the equal error variance assumption is now satisfied based on the large p value for the Brown-Forsythe test.
 
 __Linearity__
 
-![Alt text](C:\Users\hasie\Desktop\STATProject\SL4.jpg)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/SL4.jpg?raw=true)
 
 We still cannot conclude that linearity is satisfied based on the lack of fit test. However, the F ratio decreased to 1.34, which is an improvement from 1.547 in the previous model. The F critical value for these degrees of freedom is 1.057, so our F ratio is not too far above this. 
 
 __Normality of Residuals__
 
-![Alt text](C:\Users\hasie\Desktop\STATProject\SL5.jpg)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/SL5.jpg?raw=true)
 
-![Alt text](C:\Users\hasie\Desktop\STATProject\SL6.jpg)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/SL6.jpg?raw=true)
 
 Although we have a small pvalue for the Anderson-Darling test, which indicates that we do not have normality of residuals, the histogram of the residuals looks very normally distributed, so we can conclude that this assumption is not terribly violated.
 
 __Independence__
 
-![Alt text](C:\Users\hasie\Desktop\STATProject\SL7.jpg)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/SL7.jpg?raw=true)
 
 Our data on the customers is sorted in a random order, so there is no reason why the error of one observation would be related to the error of the observation next to it. The Durbin-Watson value is 1.955, which is very close to 2, which is the value that means there is no autocorrelation. Our Durbin-Watson value has a pvalue of 0.03, which is not significant at the alpha of 1% level. Since we know that our data is in a random order, and customers are likely not influencing each other, we can conclude that independence is satisfied.
 
 ### Unusual Observations
 
-![Alt text](C:\Users\hasie\Desktop\STATProject\SL8.jpg)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/SL8.jpg?raw=true)
 
 There are many externally studentized residuals greater than 3 in absolute value. However, there is only 1 observation that is a large outlier based on the Bonferroni adjustment.
 
@@ -366,7 +366,7 @@ descriptive_stats %>%
 
 We can see that the customers with the largest negative residuals almost all exited the company and had high transaction amounts and lower transaction counts. For the customers with the largest positive residuals, none of them have exited the company, and they have much lower transaction amounts and high transaction counts.
 
-![Alt text](C:\Users\hasie\Desktop\STATProject\SL9.jpg)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/SL9.jpg?raw=true)
 
 Looking at the Cook's D Influence values, only a couple of the observations stick out from the others. The Cook's D values are low, since values of 0.5 or greater indicate that the observation is influential. However, since one of the observations has a much higher Cook's D value than the other points, that observation is likely influential.
 
@@ -403,7 +403,7 @@ $\widehat{Total\_Trans\_Ct}_i'=51.94 -170.88 Total\_Trans\_Amt_i'$
 
 The model does make sense contextually because the X variable was transformed so that it was raised to the power of -0.2, so the negative coefficient for the slope means that there is a positive relationship between the untransformed variables. The variables have been transformed greatly, so the coefficient estimates do not make sense to interpret.
 
-![Alt text](C:\Users\hasie\Desktop\STATProject\SL10.jpg)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/SL10.jpg?raw=true)
 
 The model did a good job of explaining variation in transaction count, as the R-squared value is 0.8281. Therefore, 82.8% of the variation in the total transaction count transformed variable is explained by the model. The root mean square error of the model is 1.977, which is the typical deviation of the actual Y value from the predicted Y value.
 
@@ -414,7 +414,7 @@ To interpret the intercept of the estimated regression equation, we can say that
 $H_0$: The model is not significant.
 $H_A$: The model is significant.
 
-![Alt text](C:\Users\hasie\Desktop\STATProject\SL11.jpg)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/SL11.jpg?raw=true)
 
 The F ratio for the test of overall model significance is 34,217, which is very large, meaning that we can conclude that our model is significant.
 
