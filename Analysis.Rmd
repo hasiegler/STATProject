@@ -450,6 +450,163 @@ In terms of finding the best transformations, many different combinations of tra
 One thing that we were not fully content with in our analysis is that the customers that we received information on were not all of the customers of the credit card company. The minimum value of the total transaction amount variable in the dataset was $510, so these customers all used their cards a reasonable amount. Also, there were no customers with extremely large values for any of the variables, such as transaction amount or credit limit, so it would have been nicer to know more about how this data was collected. 
 
 
+
+
+# Multiple Regression
+
+__Response Variable: Total Transaction Count__
+__Explanatory Variables: Total transaction amount, Exited (qualitative), Total relationship count, Credit Limit__
+
+## Data Visualization
+
+```{r}
+training_data %>% 
+  select(Total_Trans_Ct,
+         Total_Trans_Amt, 
+         Exited,
+         Total_Relationship_Count,
+         Credit_Limit) %>% 
+  cor() %>% 
+  round(2) %>% 
+  melt() %>% 
+  ggplot(aes(Var1, Var2, fill = value)) + 
+  geom_tile(color = "white") + 
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+                       midpoint = 0, limit = c(-1,1), space = "Lab", 
+                       name="Pearson\nCorrelation") +
+  theme_minimal() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1.1, size = 8, hjust = 1.1),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank()) + 
+  coord_fixed() + 
+  labs(title = "Correlation Matrix of All Numeric Variables")
+```
+
+```{r}
+training_data %>% 
+  select(Total_Trans_Ct,
+         Total_Trans_Amt, 
+         Exited,
+         Total_Relationship_Count,
+         Credit_Limit) %>% 
+  cor()
+```
+![Alt text](ML1)
+
+
+The explanatory variable that seems most strongly associated with transaction count is total transaction amount with a correlation of 0.807. Exit status also seems moderately correlated with the response, with a correlation of -0.37. We know that total transaction count and total transaction amount do not have a completely linear relationship, from our investigation in the simple linear regression section. Exit status is a binary variable so we are not worried about having a linear relationship with that variable and the response. None of the explanatory variables are highly correlated with each other, although total transaction amount and total relationship count do have a correlation of -0.35, but that is not extremely high. All of the variables behaved as we would had expected, since increased transactions in amount and by count are positively correlated with credit limit, and negatively correlated with exit status. However, we found it unusual that total relationship count (the number of products held by the customer), is negatively correlated with transaction count and amount.
+
+![Alt text](ML2)
+
+Based on the graph above of with the interaction between Exit and total transaction amount, we can see that there is almost no interaction between these variables because the slopes of the lines look almost perfectly parallel. The interaction term in the model allows the slope between the X and Y variables to be different for customers who exited and did not exit, and since the slopes look parallel we would expect the interaction term to not be significant.
+
+## Variable Pre-Processing
+
+Initial residual vs predicted plot with all of the untransformed variables:
+
+![Alt text](ML3)
+
+![Alt text](ML4)
+
+![Alt text](ML5)
+
+The original plot of total transaction count vs Total relationship amount had linearity issues with a high F ratio of 61.46 in the Lack of Fit Test, and a small p value of <0.0001.
+
+![Alt text](ML6)
+
+After transforming the data by raising total relationship count to the power of 0.5 we were able to attain a more linear model. Although it does not satisfy the lack of fit test, it is an improvement. If we wanted to satisfy the lack of fit test we would most likely have to transform the Y variable which would increase the complexity of our model and force us to transform the other X variables as well.
+
+From the analysis in the simple linear regression portion, we know that total transaction count and total transaction amount do not have a linear relationship. Therefore, we will raise total transaction amount to the power of 0.001 and assess the linearity.
+
+![Alt text](ML7)
+
+![Alt text](ML8)
+
+After transforming total transaction amount by raising it to the power of 0.001, we were able to attain a more linear model. Although it does not satisfy the lack of fit test, it is a large improvement from the untransformed variables. If we wanted to satisfy the lack of fit test we would most likely have to transform the Y variable which would increase the complexity of our model and force us to transform the other X variables as well.
+
+Our final model is:
+
+__Response Variable: Total Transaction Count__
+__Explanatory Variables: Total transaction Amount to the power of 0.001, Exited (qualitative), Total relationship count to the power of 0.5, Credit Limit__
+
+## Residual Analysis
+
+Now we will check the assumptions of our model.
+
+__Linearity__
+
+![Alt text](ML9)
+
+Looking at the predicted values versus residual plot, we can see that the say that linearity is met, as well as equal error variance, as there is no fanning pattern in the data and the residual line of zero goes through the middle of the data generally. 
+
+![Alt text](ML10)
+
+The lack of fit test also suggested that linearity is satisfied, as the p value is 0.568 resulting in accepting the null hypothesis that linearity is satisfied.
+
+__Independence of Errors__
+
+![Alt text](ML11)
+
+We can say that the independence of errors assumption is satisfied because each of the customers in the dataset are likely independent of each other and are not influencing each other in terms of their transactions and the other variables in the model. The dataset is also sorted in a random order with no time series component. Also, with a Durbin-Watson value of 1.97, we can conclude there is no autocorrelation.
+
+![Alt text](ML12)
+
+We also look at the residual vs row order plot, which shows no pattern, so we can conclude independence. 
+
+__Normality of Residuals__
+
+![Alt text](ML13)
+
+![Alt text](ML14)
+
+Despite a low p-value for the Anderson-Darling test, which indicates that the residuals are not normal, the histogram of the residuals appears very normally distributed, so we can conclude that the normality of residuals assumption is satisfied for this analysis. 
+
+Based on all of the tests to check the assumptions, none of the assumptions are highly violated, so we can conclude that all of the assumptions of multiple linearity regression are met, so we can move forward with the model without worrying about inaccurate results. Our sample size is so large that perfectly satisfying all of the tests is not fully necessary, as long as the assumptions look generally satisfied.
+
+## Fit a Multiple Linear Regression Model
+
+```{r}
+MLmodel <- lm(Total_Trans_Ct ~ I(Total_Trans_Amt^0.001) + Credit_Limit + I(Total_Relationship_Count^0.5) + as.factor(Exited), data = training_data)
+```
+
+![Alt text](ML15)
+
+$\widehat{Total\_Trans\_Ct} = -30,982 + 30,786Total\_Trans\_Amt^{0.001} - 0.55Total\_Relationship\_Count^{0.5} + 11.3Exited[0] - 0.00007Credit\_Limit$
+
+Certain aspects of our model do not make much sense contextually. For example, an intercept of -30,982 does not make sense in context, because that is a negative transaction count. However, there are no observations in the dataset with any values for total transaction count close to 0, which is why the intercept is negative. Therefore, extrapolating predictions from this model would provide us with invalid predictions. By transforming two of the variables we expect a more difficult interpretation of the model’s parameter estimates. The initial model without transformations had an intercept of 38.025 and a total transaction amount slope of 0.0053 which make more sense in context of the problem. Our current model shows the relationship between the response variable, total transaction count, and the four explanatory variables; exited, total relationship count, credit limit, and total transaction amount after they have been transformed. 
+
+![Alt text](ML16)
+
+Overall, our model does a very good good of explaining variation in the total transaction count. There is an R squared adjusted value of 0.852. This means that 85.2% of the variation in total transaction count is explained by the explanatory variables in the model, after accounting for the number of predictor variables in the model.The error of our model or, root mean square error, is 8.99 that the average absolute value of the error of our model in predicting total transaction count is 8.99.
+
+The interpretation of the intercept is that the average predicted total number of transactions is -30,982 for an individual that does not spend any amount, has 0 products with the company, has exited the company, and has a credit limit of 0. The coefficient of the exited variable can be interpreted as when the other variables constant, customers who have not exited make 11.3 more transactions on average compared to customers who have exited. We can also interpret the coefficient estimate of the credit limit. With an increase of $1000 in a customer's credit limit, the predicted transaction count decreases by 0.07 on average, holding all of the other variables constant.
+
+![Alt text](ML17)
+
+To check the model for multicollinearity, we will analyze the variance inflation factors (VIF) for each of the explanatory variables. A maximum VIF value greater than 10 indicates that multicollinearity is influencing the least squares estimate. The largest VIF is on the total relationship count variable, with a value of 1.17, which is not high at all and very close to 1. It says that the variance of the estimated slope of total relationship count is increased 1.17 times due to the correlation with the other variables in the model. Since all the VIF values are low, we can conclude that multicollinearity is not influencing our model.
+
+## Statistical Inference
+
+![Alt text](ML18)
+
+__Model Utility Test__
+
+Ho: All of the coefficients in the model are equal to 0 or the model is not significant
+Ha: At least one of the coefficients in the model does not equal 0 or the model is significant
+
+With a p value of <0.0001 for the model utility test, we reject the null hypothesis and conclude that our model is significant.
+
+__F Partial Test__
+
+We will compare our model to a model with only one explanatory variable: Total transaction amount to the power of 0.001, which is a variable in the full model.
+
+Ho: All of the coefficients in the full model not in the reduced model are equal to 0
+Ha: At least one of the coefficients in the full model not in the reduced model is not equal to 0
+
+F = [ (691,464 - 573,585) / (7087 - 7084) ] / 81 = 485.09
+
+The F value for the F partial test is 485 with an associated p value value of <0.0001, so we conclude that at least one coefficient removed from the full model does not equal zero and therefore our full model is significantly better than the reduced model with only total transaction amount to the pwoer of 0.001.
+
 # Logistic Regression
 
 ## Descriptive Statistics
@@ -490,6 +647,7 @@ data %>%
 ```
 
 
+# Appendix
 
 
 
