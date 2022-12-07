@@ -450,7 +450,40 @@ In terms of finding the best transformations, many different combinations of tra
 One thing that we were not fully content with in our analysis is that the customers that we received information on were not all of the customers of the credit card company. The minimum value of the total transaction amount variable in the dataset was $510, so these customers all used their cards a reasonable amount. Also, there were no customers with extremely large values for any of the variables, such as transaction amount or credit limit, so it would have been nicer to know more about how this data was collected. 
 
 
+# Logistic Regression
 
+## Descriptive Statistics
+
+__Binary Response Variable: Exited (1 Meaning the Customer Exited or Left the Company)__
+
+```{r}
+training_data %>% 
+  ggplot(aes(x = as.factor(Exited), y = Total_Trans_Ct, fill = as.factor(Exited))) + 
+  geom_boxplot() + 
+  scale_fill_manual(values = c("dodgerblue", "red")) + 
+  scale_x_discrete(labels = c("Did not Exit", "Exited")) + 
+  theme(axis.title.x = element_blank(),
+        legend.position = "none") + 
+  labs(y = "Total Transaction Count")
+```
+
+```{r}
+training_data %>% 
+  ggplot(aes(x = as.factor(Exited), y = Total_Trans_Amt, fill = as.factor(Exited))) +
+  geom_boxplot() + 
+  scale_fill_manual(values = c("dodgerblue", "red")) + 
+  scale_x_discrete(labels = c("Did not Exit", "Exited")) + 
+  theme(axis.title.x = element_blank(),
+        legend.position = "none") + 
+  labs(y = "Total Transaction Amount ($)")
+```
+```{r}
+training2 <- training_data %>% 
+  mutate(high_educ = case_when(Education_Level %in% c("Graduate", "college", "Post-Graduate", "Doctorate") ~ 1,
+                               TRUE ~ 0))
+
+ggplot(training2, aes(x = Exit, y = high_educ)) +
+  geom_tile()
 
 
 
