@@ -1,6 +1,6 @@
 ---
 title: "Credit Card Customer Analysis"
-author: "Henry Siegler, Jake Ketchner, Esteban Anderson, Alex Fugate"
+author: "Team 4: Henry Siegler, Jake Ketchner, Esteban Anderson"
 output: github_document
 ---
 
@@ -477,13 +477,18 @@ training_data %>%
         legend.position = "none") + 
   labs(y = "Total Transaction Amount ($)")
 ```
-```{r}
-training2 <- training_data %>% 
-  mutate(high_educ = case_when(Education_Level %in% c("Graduate", "college", "Post-Graduate", "Doctorate") ~ 1,
-                               TRUE ~ 0))
 
-ggplot(training2, aes(x = Exit, y = high_educ)) +
-  geom_tile()
+```{r}
+data %>% 
+  ggplot(aes(x = Total_Trans_Amt, y = Total_Trans_Ct, color = as.factor(Exited))) + 
+  geom_point(alpha = 0.3) + 
+  geom_smooth(method = "lm", se = FALSE) + 
+  labs(x = "Total Transaction Amount", 
+       y = "Total Transaction Count",
+       color = "Exit Status") + 
+  scale_color_manual(labels = c("Did not Exit", "Exited"), values = c("dodgerblue", "orange"))
+```
+
 
 
 
