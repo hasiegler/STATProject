@@ -15,7 +15,13 @@ library(tidyverse)
 library(here)
 library(vtable)
 library(reshape2)
+library(caret)
 ```
+
+```{r}
+2+2
+```
+
 
 ## Introduction
 
@@ -606,6 +612,100 @@ Ha: At least one of the coefficients in the full model not in the reduced model 
 F = [ (691,464 - 573,585) / (7087 - 7084) ] / 81 = 485.09
 
 The F value for the F partial test is 485 with an associated p value value of <0.0001, so we conclude that at least one coefficient removed from the full model does not equal zero and therefore our full model is significantly better than the reduced model with only total transaction amount to the pwoer of 0.001.
+
+__Interaction Analysis__
+
+In the graph for the interaction between Exit and total transaction amount with the response variable being transaction count, we will investigate whether or not the interaction term is significant.
+
+Ho: The relationship between total transaction amount and total transaction count does not change depending on if a customer has exited or not.
+Ho: The relationship between total transaction amount and total transaction count changes depending on if a customer has exited or not.
+
+![Alt text](ML19)
+
+The t test for the test of significance of the interaction term has one degree of freedom and t ratio of 0.32. The associated p value is 0.75, so we can conclude that the relationship between total transaction amount and total transaction count does not change depending on if a customer has exited or not. This matches the graph from above, because the lines for the customers that exited and did not exit look almost perfectly parrellel, suggesting that there is no interaction. 
+
+__Confidence and Prediction Intervals__
+
+```{r}
+interval_data <- data.frame(Total_Trans_Amt = 6000, Credit_Limit = 11000, Total_Relationship_Count = 4, Exited = 0)
+predict(MLmodel, newdata = interval_data, interval = 'confidence', level =0.95)
+predict(MLmodel, newdata = interval_data, interval = 'prediction', level =0.95)
+```
+We would like to predict a confidence interval for the mean transaction counts and a prediction interval for the transaction counts for a given customer. For a customers that have a transaction amount of \$6,0000, a credit limit of \$11,000, four total products, and did not Exit, we are 95% confident that the mean total transaction count is between 82.78 and 83.38 transactions. For a single customer with these same combination of attributes, we are 95% confident that the customer's total transaction count will be between 65.42 and 100.74 transactions, which is a much larger range than the confidence interval. This choice of explanatory variables is of interest because there are many customers with this combination of attributes, and we would like to see the intervals for customers who spend more than most customers, which is why we choose a transaction count of \$6,000.
+
+__Possible Extra: Richer Model and Interpretation__
+
+```{r}
+training_data %>% 
+  ggplot(aes(x = Total_Trans_Amt, y = Total_Trans_Ct, color = as.factor(Exited))) + 
+  geom_point(alpha = 0.3) + 
+  geom_smooth(method = "lm", formula = y ~ poly(x, 3), se = FALSE) + 
+  labs(x = "Total Transaction Amount", 
+       y = "Total Transaction Count",
+       color = "Exit Status",
+       title = "Third Degree Polynomial Smoother for Customers who did and did not Exit") + 
+  scale_color_manual(labels = c("Did not Exit", "Exited"), values = c("dodgerblue", "orange"))
+```
+
+Based on the shape of the data in the scatterplot between total transaction amount and total transaction count, we can see that a third degree polynomial explains the shape of the data well. 
+
+We will add the squares and cubed transaction amount terms to the model, as well as a categorical variable for marital status, which has four different categories: divorced, single, married, and unknown. We will one-hot encode these variables and we will use marital status of single as the baseline. We will also include total relationship count and exit status into the model.
+
+```{r}
+dummy <- dummyVars(" ~ .", data=training_data)
+one_hot_training <- data.frame(predict(dummy, newdata = training_data)) 
+
+dummy2 <- dummyVars(" ~ .", data=test_data)
+one_hot_test <- data.frame(predict(dummy2, newdata = test_data)) 
+```
+
+```{r}
+ML_model2 <- lm(Total_Trans_Ct ~ Total_Trans_Amt + I(Total_Trans_Amt^2) + I(Total_Trans_Amt^3) + Marital_StatusDivorced + Marital_StatusMarried + Marital_StatusUnknown + Total_Relationship_Count + Exited, data = one_hot_training)
+```
+
+```{r}
+one_hot_training$residuals_one_hot <- ML_model2$residuals
+one_hot_training$predicted_one_hot <- ML_model2$fitted.values
+
+one_hot_training %>% 
+  ggplot(aes(y = residuals_one_hot, x = predicted_one_hot)) + 
+  geom_point(alpha = 0.3, color = "dodgerblue") + 
+  labs(x = "Predicted",
+       y = "Residuals")
+```
+Looking at the predicted vs residual plot for the richer model, we can see that linearity and equal error variance are reasonably satisfied. 
+
+```{r}
+summary(ML_model2)
+```
+When we look at the coefficient estimates in the model, we can see that the coefficients on the squared and cubed terms for transaction amount are both significant, which suggests that a cubic term for this variable is appropriate for explaining the data. We also have significant coefficient estimates for married and unknown marital status, meaning that when holding the other variables constant, there is a significant difference in transaction counts between single customers and married customers, and single customers and customers with an unknown marital status. In particular, married and customers of unknown marital status make about one fewer transaction than single customers, holding the other variables constant. The coefficient for the divorced estimate is not significant, meaning that predicted transaction count is not different between single and divorced customers, holding all of the other variables constant. 
+
+The adjusted R-squared value for this model is 0.855, which is only slightly higher than the adjusted R-squared value in our original multiple linear regression model of 0.852.
+
+## Model Validation
+
+Using the original multiple linear regression model without the polynomial terms for transaction amount, we will predict values for the testing data using the model from the training data and evaluate the results. 
+
+```{r}
+test_data$ML_predictions <- predict(MLmodel, newdata = test_data)
+cat("Correlation between testing data predictions and actual values", cor(test_data$ML_predictions, test_data$Total_Trans_Ct))
+```
+```{r}
+(sum((test_data$Total_Trans_Ct - test_data$ML_predictions)^2) / nrow(test_data)) %>% 
+  sqrt()
+```
+
+Using the coefficients of the model created using the training data, we predicted all of the values for the testing data. The correlation between those predicted values and the actual transaction counts for the testing data customers is 0.92, which is a high correlation, suggesting that our model does a good job of predicting values out of sample. Also, the root mean square error found from the testing data actual values and their predicted values is 9.05, which is only slightly higher than the root mean square error of the training model, which was 8.99. This also suggests that our model has not been overfit to the training data because it is still very good at predicting values for customers that were not in the dataset used to create the model.
+
+## Conclusion
+
+Overall, the final model is very strong and it predicts the total transaction count of customers fairly accurately, with a typical deviation of actual values from predicted values of 9, which is very close considering the average transaction count is 65 transactions. The model is not overfit to the training data, as it does just about as good at predicting values out of sample in the testing dataset as it does predicting values in the training dataset. The overall model utility test suggests that our model is very significant in predicting transaction count for these customers of this company.
+
+The model is valid, as it generally satisfies all of the assumptions required for multiple linear regression models. One weakness of the model is that it is only a slight improvement in predicting transaction count compared to the simple linear regression model with only transaction amount transformed as a predictor variable. The R squared values for both of these models are similar, and our model is more complex due to the extra terms that were added to the model. 
+
+The final does tell us a few things about the total transaction counts for customers. It tells us customers that have not exited generally have more transactions compared to customers that exited, so if a customer is not engaging in as many transactions, they are more likely to exit. Also, as the total number of products held by a customer increases, the less transactions the customer has on average, holding the other variables constant. Also, we can see that increased transaction amounts are associated with higher transaction counts, holding the other variables constant.
+
+It would be beneficial to one hot encode all of the categorical variables in the dataset, such as income level and education status, and compare how the different education or income levels relate to the transaction counts when holding other variables constant.
 
 # Logistic Regression
 
