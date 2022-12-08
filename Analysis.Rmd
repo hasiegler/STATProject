@@ -820,7 +820,7 @@ __Residual Plot__
 
 There are a decent amount of points that have large residuals. There are only a few points with a large positive residual however, there are more negative residuals. 
 
-![Alt text](https://github.com/hasiegler/STATProject/blob/main/LR8.png?raw=true)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/LR9.png?raw=true)
 
 Based on the confusion table, we have an accuracy rate of 82.46%, which is actually a lower accuracy rate than in the single predictor model, which was 83%.
 

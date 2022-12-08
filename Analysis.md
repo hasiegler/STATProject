@@ -1,8 +1,7 @@
-Credit Card Customer Analysis
+Predicting Credit Card Customer Total Transactions and If They Exit the
+Company
 ================
 Team 4: Henry Siegler, Jake Ketchner, Esteban Anderson
-
-    ## [1] 4
 
 ## Introduction
 
@@ -76,7 +75,7 @@ In the table above, we can see some descriptive statistics of the
 variables in our dataset. None of the numeric variables have extremely
 large maximum values.
 
-![](Analysis_files/figure-gfm/unnamed-chunk-6-1.png)<!-- --> We can see
+![](Analysis_files/figure-gfm/unnamed-chunk-5-1.png)<!-- --> We can see
 from the correlation matrix that **Avg_Open_To_Buy** is highly
 correlated with **Credit_Limit**, so we will remove **Avg_Open_To_Buy**
 because it is redundant to keep both of these variables. We can see that
@@ -116,12 +115,12 @@ highest correlation are **Total_Trans_Amt**, **Exited**,
 Now we will explore the **Total_Trans_Ct variable** and its relationship
 with other correlated variables in our data.
 
-![](Analysis_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](Analysis_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 We see that most customers have a total transaction count in the range
 of about 30 to 90 transactions in the past year.
 
-![](Analysis_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](Analysis_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 For all of the income categories, we see a bimodal distribution for the
 **Total_Trans_Ct**. For people in the income category of “less than
@@ -132,7 +131,7 @@ income levels, the distributions look pretty similar and have similar
 centers and averages, so it does not appear that income category is
 related to the response.
 
-![](Analysis_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](Analysis_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 We can see that the Total Transaction Counts for the customers who have
 have exited has a unimodal distribution, with the center of the peak
@@ -142,7 +141,7 @@ for those who have exited appears to be about 35 transactions, but that
 number is around 70 for those who have not exited. Therefore, exited
 does appear to be very related to the response.
 
-![](Analysis_files/figure-gfm/unnamed-chunk-13-1.png)<!-- --> The
+![](Analysis_files/figure-gfm/unnamed-chunk-12-1.png)<!-- --> The
 average total transactions is smaller for the groups of people with 3,
 4, 5 and 6 products compared to those with only 1 or 2 products. Total
 Relationship Count (total number of products a customer has), appears to
@@ -150,7 +149,7 @@ have a relationship with the response.
 
 ## Data Visualization
 
-![](Analysis_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](Analysis_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 Based on the scatterplot between total transaction count and total
 transaction amount, we can see that the data appears to form 3 clusters,
@@ -201,7 +200,7 @@ testing dataset.
 Explanatory Variable: **Total_Trans_Amt** Response Variable:
 **Total_Trans_Ct**
 
-![](Analysis_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](Analysis_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 As we can see in the scatter plot, the relationship between total
 transaction count and total transaction amount is not linear, so we must
@@ -215,7 +214,7 @@ First, we will try decreasing the power of the X variable, by taking the
 square root. Also, we will increase the power of Y, by squaring the Y
 variable.
 
-![](Analysis_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](Analysis_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 Linearity looks better, but equal error variance does not appear to be
 satisfied. We have increasing variance, so we want to decrease the power
@@ -224,7 +223,7 @@ root of Y instead of Y squared.
 
 ### Attempt \#2
 
-![](Analysis_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](Analysis_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 Equal error variance looks like it is satisfied, however linearity does
 not look ideal. Therefore, we want to try to find a transformation for Y
@@ -232,7 +231,7 @@ that is between $Y^{0.5}$ and $Y^2$.
 
 ### Attempt \#3
 
-![](Analysis_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![](Analysis_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 Raising total transaction count to the power of 0.8 keeps the
 relationship fairly linear and maintains fairly equal error variance.
@@ -243,7 +242,7 @@ the power of X
 
 Decreasing the power of X from 0.5 to 0.1, we get the following:
 
-![](Analysis_files/figure-gfm/unnamed-chunk-21-1.png)<!-- --> These
+![](Analysis_files/figure-gfm/unnamed-chunk-20-1.png)<!-- --> These
 transformations seem to do the best job at linearizing the data, while
 retaining equal error variances.
 
@@ -256,7 +255,7 @@ X’ = $Total\_Trans\_Amt^{0.1}$ Y’ = $Total\_Trans\_Ct^{0.8}$
 
 **Equal Error Variance**
 
-![](Analysis_files/figure-gfm/unnamed-chunk-23-1.png)<!-- --> ![Alt
+![](Analysis_files/figure-gfm/unnamed-chunk-22-1.png)<!-- --> ![Alt
 text](https://github.com/hasiegler/STATProject/blob/main/SL2.jpg?raw=true)
 
 Based on the residual by predicted plot and the Brown-Forsythe small p
@@ -274,11 +273,11 @@ violated so we will try new transformations.
 
 ### New Transformation
 
-![](Analysis_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+![](Analysis_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
 **Equal Error Variance**
 
-![](Analysis_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+![](Analysis_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
 
 ![Alt
 text](https://github.com/hasiegler/STATProject/blob/main/SL3.jpg?raw=true)
@@ -392,7 +391,7 @@ Final Model:
 
 $X' = Total\_Trans\_Amt^{-0.2}$ $Y' = Total\_Trans\_Ct^{0.7}$
 
-![](Analysis_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
+![](Analysis_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
 
 The model above did not terribly violate any of the assumptions required
 for simple linear regression models, so the predictions and implications
@@ -541,7 +540,7 @@ count, Credit Limit**
 
 ## Data Visualization
 
-![](Analysis_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
+![](Analysis_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
 
     ##                          Total_Trans_Ct Total_Trans_Amt      Exited
     ## Total_Trans_Ct               1.00000000       0.8070911 -0.37394933
@@ -838,7 +837,7 @@ transaction count of \$6,000.
 
 **Possible Extra: Richer Model and Interpretation**
 
-![](Analysis_files/figure-gfm/unnamed-chunk-39-1.png)<!-- -->
+![](Analysis_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->
 
 Based on the shape of the data in the scatterplot between total
 transaction amount and total transaction count, we can see that a third
@@ -851,7 +850,7 @@ one-hot encode these variables and we will use marital status of single
 as the baseline. We will also include total relationship count and exit
 status into the model.
 
-![](Analysis_files/figure-gfm/unnamed-chunk-42-1.png)<!-- --> Looking at
+![](Analysis_files/figure-gfm/unnamed-chunk-41-1.png)<!-- --> Looking at
 the predicted vs residual plot for the richer model, we can see that
 linearity and equal error variance are reasonably satisfied.
 
@@ -968,10 +967,192 @@ transaction counts when holding other variables constant.
 **Binary Response Variable: Exited (1 Meaning the Customer Exited or
 Left the Company)**
 
+![](Analysis_files/figure-gfm/unnamed-chunk-45-1.png)<!-- --> The
+distributions of the total transaction counts are shown in the form of
+boxplots for customers who exited the company and who did not exit the
+company. Customers that exited the company generally had significant
+fewer transactions with a median of about 40 compared to a median of
+about 70 for those who did not exit. The 75% percentile for the
+customers that exited is below the 25% percentile for the customers that
+did not exit, which demonstrates that transaction count does a very good
+job at discriminating between if a customer exits or not.
+
 ![](Analysis_files/figure-gfm/unnamed-chunk-46-1.png)<!-- -->
 
-![](Analysis_files/figure-gfm/unnamed-chunk-47-1.png)<!-- -->
+The distributions for the transaction amount in dollars between the
+exited and did not exit customers demonstrates that customers that exit
+generally spend less than customers that do not exit. The third quartile
+for the exited group in terms of transaction amount is only slightly
+above the first quartile of the did not exit group. We can see that both
+groups generally spend about \$2,500 to \$5,000 with their credit cards
+per year, but there are many outliers in both groups.
 
-![](Analysis_files/figure-gfm/unnamed-chunk-48-1.png)<!-- -->
+The boxplots of the total transaction amounts overlap much more when
+looking at the distribution of total transaction amount compared to
+total transaction count, so tranaction count does a better job at
+discriminating between exited or did not exit.
 
-# Appendix
+**Contingency Table**
+
+![Alt
+text](https://github.com/hasiegler/STATProject/blob/main/LR1.png?raw=true)
+
+The odds ratio from this contingency table is 1.18. This means that
+female customers have 1.18 times the odds of exiting than males do.
+
+![](Analysis_files/figure-gfm/unnamed-chunk-47-1.png)<!-- --> The
+scatterplot above plots customers’ transaction amount and transaction
+counts and codes the points by if the customer exited or did not exit.
+The scatterplot shows us that customers that exit generally spent less
+and engage in fewer transactions than customers that did not exit. Also,
+customers that exited the company almost never spent more than \$10,000
+in the year, however there are many customers that did not exit that
+spend around \$15,0000.
+
+## Single Predictor Model
+
+**Response Variable: Exit** **Explanatory Variable: Total transaction
+count**
+
+For this model we chose to use the total transaction count variable
+because it appeared to discriminate between successes and failures
+better based on the lack of overlap in the box plots compared to the box
+plot for total amount spent.
+
+![Alt
+text](https://github.com/hasiegler/STATProject/blob/main/LR2.png?raw=true)
+
+We will use the model to predict the probability of a customer exiting
+given that the customer has a total transaction count of 20
+transactions.
+
+$\frac{e^{1.4038 - 0.05(20)}}{1 + e^{1.4038 - 0.05(20)}} = 0.58$
+
+0.58 means that a customer with 20 total transactions over the past year
+has a predicted probability of exiting the company of 58%. This is a
+very high probability consider that only 16% of all the customers in the
+dataset exited the company. This suggests that people with lower
+transaction counts are more likely to exit the company.
+
+![Alt
+text](https://github.com/hasiegler/STATProject/blob/main/LR3.png?raw=true)
+
+Looking at the downward direction of the slope, we can tell that there
+is a negative relationship between the total transaction count and the
+probability that a customer will have exited the company. This is
+evidenced by how the slope for the model is -0.0540, the negative
+integer means that there is a negative relationship between likelihood
+of a customer exiting and total transaction cost. The predicted
+probability of a customer exiting for high transaction counts is very
+close to zero, but the probability of customers exiting is not very
+close to 1 for customers with low transaction counts.
+
+To interpret the slope in the context of the model, for every
+transaction that a customer makes, the odds of that customer exiting the
+company decreases by $e^{-0.05}$ times or 0.9474 times.
+
+![Alt
+text](https://github.com/hasiegler/STATProject/blob/main/LR4.png?raw=true)
+
+The computer’s odds factor is 0.9474, with a 95% confidence interval of
+0.943 to 0.9509. We are 95% confident that the true decrease in odds of
+exiting the company for an increase of 1 in total transaction count is
+between 0.943 and 0.9509 times.
+
+$Ho: \beta_1 = 0$ The odds of exiting are the same for any level of
+transaction count. $Ha: \beta_1 \neq 0$ The odds of exiting are not the
+same for different transaction counts.
+
+The chisquared value associated with this test is 834, with a pvalue of
+\<.0001. Based on the small pvalue, we can reject the null hypothesis
+and conclude that the total transaction count changes the odds of a
+customer exiting. This test is consistent with the confidence interval,
+because the confidence interval was all less than 1 for the odds factor.
+If the odds factor included 1, it would mean that the odds are not
+different for increases in transaction counts.
+
+![Alt
+text](https://github.com/hasiegler/STATProject/blob/main/LR5.png?raw=true)
+
+The confusion matrix lines up with our other data seeing as it has high
+accuracy. The accuracy rate of .8303 or 83.03%, means that 83.03% of our
+predictions were correct. The model makes sense to use because exit
+status did largely depend on tranaction count. Using only 1 predictor
+variable, an 83% accuracy rate is fairly strong. Looking at the
+scatterplot with transaction count by exit status, we can see that as
+transaction count rise, the probability of exiting decreases for all
+levels of transaction counts, so the model is appropriate. The only
+unusual observations are the group of customers that have high total
+transaction counts, but the model adequately accounts for the
+probability of them exiting being very low.
+
+## Multiple Predictors Model
+
+$log(odds of exiting) = 1.03 - 0.43 Total\_Relationship\_Count - 0.0003 Total\_Trans\_Amt + 0.2male[0]$
+
+Using the model to predict the probability of a male customer with a
+total relationship count of 6 and total transaction amount of \$920, we
+can plug in the values into the following formula:
+
+$\frac{e^{1.033 - 0.43(6) - 0.0003(920) + 0.2049(0)}}{1 + e^{1.033 - 0.43(6) - 0.0003(920) + 0.2049(0)}} = 0.13$
+
+The predicted probability that an individual with these attributes exits
+is 13%.
+
+![Alt
+text](https://github.com/hasiegler/STATProject/blob/main/LR6.png?raw=true)
+
+Based on the high ChiSquare value and low p-value of \<0.001 in the
+whole model test, we can conclude that the model is a significant model
+in terms of whether or not a customer will exit based on total
+translation amount, total relationship count, and gender.
+
+![Alt
+text](https://github.com/hasiegler/STATProject/blob/main/LR7.png?raw=true)
+
+Based on the high ChiSquare values and low p-values for all of our x
+variables, we can conclude that each variable is a significant predictor
+for of the odds of a customer leaving the company.
+
+**Drop in Deviance Test**
+
+We will carry out a drop in deviances test for a full model with total
+relationship count, total transaction amount, gender, and an interaction
+between gender and total transaction amount. The reduced model has all
+the same variables except for the interaction term.
+
+$D = 2(2848) - 2(2763) = 170$ Df = 4-3 = 1 and pvalue \<.0001
+
+After completing a drop in deviance test we can conclude that the full
+model is better than the reduced model. The chi squared value is 170.26
+with a small p value of \<.0001. Since the interaction term is
+significant, we acknowledge that odds of exiting based on total
+transaction amount changes depending on gender.
+
+**Residual Plot**
+
+![Alt
+text](https://github.com/hasiegler/STATProject/blob/main/LR8.png?raw=true)
+
+There are a decent amount of points that have large residuals. There are
+only a few points with a large positive residual however, there are more
+negative residuals.
+
+![Alt
+text](https://github.com/hasiegler/STATProject/blob/main/LR8.png?raw=true)
+
+Based on the confusion table, we have an accuracy rate of 82.46%, which
+is actually a lower accuracy rate than in the single predictor model,
+which was 83%.
+
+## Conclusion
+
+In the logistic regression section, we were interested in predicting the
+probability that a customer exits the company, which is a binary
+variable. We first used only transaction count to predict whether or not
+a customer would exit. Then we used total relationship count, gender,
+and total transaction amount as a predictor variables, but this model
+actually had a lower accuracy rate than the single predictor model. I
+would use the single predictor model, and add interaction terms and
+other variables to that model to create the best accuracy for predicting
+exit status.
