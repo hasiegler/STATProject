@@ -1,5 +1,5 @@
 ---
-title: "Credit Card Customer Analysis"
+title: "Predicting Credit Card Customer Total Transactions and If They Exit the Company"
 author: "Team 4: Henry Siegler, Jake Ketchner, Esteban Anderson"
 output: github_document
 ---
@@ -17,11 +17,6 @@ library(vtable)
 library(reshape2)
 library(caret)
 ```
-
-```{r}
-2+2
-```
-
 
 ## Introduction
 
@@ -497,12 +492,11 @@ training_data %>%
          Credit_Limit) %>% 
   cor()
 ```
-![Alt text](ML1)
-
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/ML1.png?raw=true)
 
 The explanatory variable that seems most strongly associated with transaction count is total transaction amount with a correlation of 0.807. Exit status also seems moderately correlated with the response, with a correlation of -0.37. We know that total transaction count and total transaction amount do not have a completely linear relationship, from our investigation in the simple linear regression section. Exit status is a binary variable so we are not worried about having a linear relationship with that variable and the response. None of the explanatory variables are highly correlated with each other, although total transaction amount and total relationship count do have a correlation of -0.35, but that is not extremely high. All of the variables behaved as we would had expected, since increased transactions in amount and by count are positively correlated with credit limit, and negatively correlated with exit status. However, we found it unusual that total relationship count (the number of products held by the customer), is negatively correlated with transaction count and amount.
 
-![Alt text](ML2)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/ML2.png?raw=true)
 
 Based on the graph above of with the interaction between Exit and total transaction amount, we can see that there is almost no interaction between these variables because the slopes of the lines look almost perfectly parallel. The interaction term in the model allows the slope between the X and Y variables to be different for customers who exited and did not exit, and since the slopes look parallel we would expect the interaction term to not be significant.
 
@@ -510,23 +504,23 @@ Based on the graph above of with the interaction between Exit and total transact
 
 Initial residual vs predicted plot with all of the untransformed variables:
 
-![Alt text](ML3)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/ML3.png?raw=true)
 
-![Alt text](ML4)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/ML4.png?raw=true)
 
-![Alt text](ML5)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/ML5.png?raw=true)
 
 The original plot of total transaction count vs Total relationship amount had linearity issues with a high F ratio of 61.46 in the Lack of Fit Test, and a small p value of <0.0001.
 
-![Alt text](ML6)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/ML6.png?raw=true)
 
 After transforming the data by raising total relationship count to the power of 0.5 we were able to attain a more linear model. Although it does not satisfy the lack of fit test, it is an improvement. If we wanted to satisfy the lack of fit test we would most likely have to transform the Y variable which would increase the complexity of our model and force us to transform the other X variables as well.
 
 From the analysis in the simple linear regression portion, we know that total transaction count and total transaction amount do not have a linear relationship. Therefore, we will raise total transaction amount to the power of 0.001 and assess the linearity.
 
-![Alt text](ML7)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/ML7.png?raw=true)
 
-![Alt text](ML8)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/ML8.png?raw=true)
 
 After transforming total transaction amount by raising it to the power of 0.001, we were able to attain a more linear model. Although it does not satisfy the lack of fit test, it is a large improvement from the untransformed variables. If we wanted to satisfy the lack of fit test we would most likely have to transform the Y variable which would increase the complexity of our model and force us to transform the other X variables as well.
 
@@ -541,29 +535,29 @@ Now we will check the assumptions of our model.
 
 __Linearity__
 
-![Alt text](ML9)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/ML9.png?raw=true)
 
 Looking at the predicted values versus residual plot, we can see that the say that linearity is met, as well as equal error variance, as there is no fanning pattern in the data and the residual line of zero goes through the middle of the data generally. 
 
-![Alt text](ML10)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/ML10.png?raw=true)
 
 The lack of fit test also suggested that linearity is satisfied, as the p value is 0.568 resulting in accepting the null hypothesis that linearity is satisfied.
 
 __Independence of Errors__
 
-![Alt text](ML11)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/ML11.png?raw=true)
 
 We can say that the independence of errors assumption is satisfied because each of the customers in the dataset are likely independent of each other and are not influencing each other in terms of their transactions and the other variables in the model. The dataset is also sorted in a random order with no time series component. Also, with a Durbin-Watson value of 1.97, we can conclude there is no autocorrelation.
 
-![Alt text](ML12)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/ML12.png?raw=true)
 
 We also look at the residual vs row order plot, which shows no pattern, so we can conclude independence. 
 
 __Normality of Residuals__
 
-![Alt text](ML13)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/ML13.png?raw=true)
 
-![Alt text](ML14)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/ML14.png?raw=true)
 
 Despite a low p-value for the Anderson-Darling test, which indicates that the residuals are not normal, the histogram of the residuals appears very normally distributed, so we can conclude that the normality of residuals assumption is satisfied for this analysis. 
 
@@ -575,25 +569,25 @@ Based on all of the tests to check the assumptions, none of the assumptions are 
 MLmodel <- lm(Total_Trans_Ct ~ I(Total_Trans_Amt^0.001) + Credit_Limit + I(Total_Relationship_Count^0.5) + as.factor(Exited), data = training_data)
 ```
 
-![Alt text](ML15)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/ML15.png?raw=true)
 
 $\widehat{Total\_Trans\_Ct} = -30,982 + 30,786Total\_Trans\_Amt^{0.001} - 0.55Total\_Relationship\_Count^{0.5} + 11.3Exited[0] - 0.00007Credit\_Limit$
 
 Certain aspects of our model do not make much sense contextually. For example, an intercept of -30,982 does not make sense in context, because that is a negative transaction count. However, there are no observations in the dataset with any values for total transaction count close to 0, which is why the intercept is negative. Therefore, extrapolating predictions from this model would provide us with invalid predictions. By transforming two of the variables we expect a more difficult interpretation of the model’s parameter estimates. The initial model without transformations had an intercept of 38.025 and a total transaction amount slope of 0.0053 which make more sense in context of the problem. Our current model shows the relationship between the response variable, total transaction count, and the four explanatory variables; exited, total relationship count, credit limit, and total transaction amount after they have been transformed. 
 
-![Alt text](ML16)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/ML16.png?raw=true)
 
 Overall, our model does a very good good of explaining variation in the total transaction count. There is an R squared adjusted value of 0.852. This means that 85.2% of the variation in total transaction count is explained by the explanatory variables in the model, after accounting for the number of predictor variables in the model.The error of our model or, root mean square error, is 8.99 that the average absolute value of the error of our model in predicting total transaction count is 8.99.
 
 The interpretation of the intercept is that the average predicted total number of transactions is -30,982 for an individual that does not spend any amount, has 0 products with the company, has exited the company, and has a credit limit of 0. The coefficient of the exited variable can be interpreted as when the other variables constant, customers who have not exited make 11.3 more transactions on average compared to customers who have exited. We can also interpret the coefficient estimate of the credit limit. With an increase of $1000 in a customer's credit limit, the predicted transaction count decreases by 0.07 on average, holding all of the other variables constant.
 
-![Alt text](ML17)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/ML17.png?raw=true)
 
 To check the model for multicollinearity, we will analyze the variance inflation factors (VIF) for each of the explanatory variables. A maximum VIF value greater than 10 indicates that multicollinearity is influencing the least squares estimate. The largest VIF is on the total relationship count variable, with a value of 1.17, which is not high at all and very close to 1. It says that the variance of the estimated slope of total relationship count is increased 1.17 times due to the correlation with the other variables in the model. Since all the VIF values are low, we can conclude that multicollinearity is not influencing our model.
 
 ## Statistical Inference
 
-![Alt text](ML18)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/ML18.png?raw=true)
 
 __Model Utility Test__
 
@@ -620,7 +614,7 @@ In the graph for the interaction between Exit and total transaction amount with 
 Ho: The relationship between total transaction amount and total transaction count does not change depending on if a customer has exited or not.
 Ho: The relationship between total transaction amount and total transaction count changes depending on if a customer has exited or not.
 
-![Alt text](ML19)
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/ML19.png?raw=true)
 
 The t test for the test of significance of the interaction term has one degree of freedom and t ratio of 0.32. The associated p value is 0.75, so we can conclude that the relationship between total transaction amount and total transaction count does not change depending on if a customer has exited or not. This matches the graph from above, because the lines for the customers that exited and did not exit look almost perfectly parrellel, suggesting that there is no interaction. 
 
@@ -723,6 +717,8 @@ training_data %>%
         legend.position = "none") + 
   labs(y = "Total Transaction Count")
 ```
+The distributions of the total transaction counts are shown in the form of boxplots for customers who exited the company and who did not exit the company. Customers that exited the company generally had significant fewer transactions with a median of about 40 compared to a median of about 70 for those who did not exit. The 75% percentile for the customers that exited is below the 25% percentile for the customers that did not exit, which demonstrates that transaction count does a very good job at discriminating between if a customer exits or not.
+
 
 ```{r}
 training_data %>% 
@@ -735,6 +731,16 @@ training_data %>%
   labs(y = "Total Transaction Amount ($)")
 ```
 
+The distributions for the transaction amount in dollars between the exited and did not exit customers demonstrates that customers that exit generally spend less than customers that do not exit. The third quartile for the exited group in terms of transaction amount is only slightly above the first quartile of the did not exit group. We can see that both groups generally spend about \$2,500 to \$5,000 with their credit cards per year, but there are many outliers in both groups.
+
+The boxplots of the total transaction amounts overlap much more when looking at the distribution of total transaction amount compared to total transaction count, so tranaction count does a better job at discriminating between exited or did not exit.
+
+__Contingency Table__
+
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/LR1.png?raw=true)
+
+The odds ratio from this contingency table is 1.18. This means that female customers have 1.18 times the odds of exiting than males do. 
+
 ```{r}
 data %>% 
   ggplot(aes(x = Total_Trans_Amt, y = Total_Trans_Ct, color = as.factor(Exited))) + 
@@ -745,9 +751,91 @@ data %>%
        color = "Exit Status") + 
   scale_color_manual(labels = c("Did not Exit", "Exited"), values = c("dodgerblue", "orange"))
 ```
+The scatterplot above plots customers' transaction amount and transaction counts and codes the points by if the customer exited or did not exit. The scatterplot shows us that customers that exit generally spent less and engage in fewer transactions than customers that did not exit. Also, customers that exited the company almost never spent more than \$10,000 in the year, however there are many customers that did not exit that spend around \$15,0000.
+
+## Single Predictor Model
+
+__Response Variable: Exit__
+__Explanatory Variable: Total transaction count__
+
+For this model we chose to use the total transaction count variable because it appeared to discriminate between successes and failures better based on the lack of overlap in the box plots compared to the box plot for total amount spent.
+
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/LR2.png?raw=true)
+
+We will use the model to predict the probability of a customer exiting given that the customer has a total transaction count of 20 transactions. 
+
+$\frac{e^{1.4038 - 0.05(20)}}{1 + e^{1.4038 - 0.05(20)}} = 0.58$
+
+0.58 means that a customer with 20 total transactions over the past year has a predicted probability of exiting the company of 58%. This is a very high probability consider that only 16% of all the customers in the dataset exited the company. This suggests that people with lower transaction counts are more likely to exit the company.
+
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/LR3.png?raw=true)
+
+Looking at the downward direction of the slope, we can tell that there is a negative relationship between the total transaction count and the probability that a customer will have exited the company. This is evidenced by how the slope for the model is -0.0540, the negative integer means that there is a negative relationship between likelihood of a customer exiting and total transaction cost. The predicted probability of a customer exiting for high transaction counts is very close to zero, but the probability of customers exiting is not very close to 1 for customers with low transaction counts. 
+
+To interpret the slope in the context of the model, for every transaction that a customer makes, the odds of that customer exiting the company decreases by $e^{-0.05}$ times or 0.9474 times.
+
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/LR4.png?raw=true)
+
+The computer's odds factor is 0.9474, with a 95% confidence interval of 0.943 to 0.9509. We are 95% confident that the true decrease in odds of exiting the company for an increase of 1 in total transaction count is between 0.943 and 0.9509 times.
+
+$Ho: \beta_1 = 0$ The odds of exiting are the same for any level of transaction count.
+$Ha: \beta_1 \neq 0$ The odds of exiting are not the same for different transaction counts.
+
+The chisquared value associated with this test is 834, with a pvalue of <.0001. Based on the small pvalue, we can reject the null hypothesis and conclude that the total transaction count changes the odds of a customer exiting. This test is consistent with the confidence interval, because the confidence interval was all less than 1 for the odds factor. If the odds factor included 1, it would mean that the odds are not different for increases in transaction counts. 
+
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/LR5.png?raw=true)
+
+The confusion matrix lines up with our other data seeing as it has high accuracy. The accuracy rate of .8303 or 83.03%, means that 83.03% of our predictions were correct. The model makes sense to use because exit status did largely depend on tranaction count. Using only 1 predictor variable, an 83% accuracy rate is fairly strong. Looking at the scatterplot with transaction count by exit status, we can see that as transaction count rise, the probability of exiting decreases for all levels of transaction counts, so the model is appropriate. The only unusual observations are the group of customers that have high total transaction counts, but the model adequately accounts for the probability of them exiting being very low.
+
+## Multiple Predictors Model
+
+$log(odds of exiting) = 1.03 - 0.43 Total\_Relationship\_Count - 0.0003 Total\_Trans\_Amt + 0.2male[0]$
+
+Using the model to predict the probability of a male customer with a total relationship count of 6 and total transaction amount of \$920, we can plug in the values into the following formula:
+
+$\frac{e^{1.033 - 0.43(6) - 0.0003(920) + 0.2049(0)}}{1 + e^{1.033 - 0.43(6) - 0.0003(920) + 0.2049(0)}} = 0.13$
+
+The predicted probability that an individual with these attributes exits is 13%. 
+
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/LR6.png?raw=true)
+
+Based on the high ChiSquare value and low p-value of <0.001 in the whole model test, we can conclude that the model is a significant model in terms of whether or not a customer will exit based on total translation amount, total relationship count, and gender.
+
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/LR7.png?raw=true)
+
+Based on the high ChiSquare values and low p-values for all of our x variables, we can conclude that each variable is a significant predictor for of the odds of a customer leaving the company.
+
+__Drop in Deviance Test__
+
+We will carry out a drop in deviances test for a full model with total relationship count, total transaction amount, gender, and an interaction between gender and total transaction amount. The reduced model has all the same variables except for the interaction term.
+
+$D = 2(2848) - 2(2763) = 170$ 
+Df = 4-3 = 1 and pvalue <.0001
+
+After completing a drop in deviance test we can conclude that the full model is better than the reduced model. The chi squared value is 170.26 with a small p value of <.0001. Since the interaction term is significant, we acknowledge that odds of exiting based on total transaction amount changes depending on gender.
+
+__Residual Plot__
+
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/LR8.png?raw=true)
+
+There are a decent amount of points that have large residuals. There are only a few points with a large positive residual however, there are more negative residuals. 
+
+![Alt text](https://github.com/hasiegler/STATProject/blob/main/LR8.png?raw=true)
+
+Based on the confusion table, we have an accuracy rate of 82.46%, which is actually a lower accuracy rate than in the single predictor model, which was 83%.
+
+## Conclusion
+
+In the logistic regression section, we were interested in predicting the probability that a customer exits the company, which is a binary variable. We first used only transaction count to predict whether or not a customer would exit. Then we used total relationship count, gender, and total transaction amount as a predictor variables, but this model actually had a lower accuracy rate than the single predictor model. I would use the single predictor model, and add interaction terms and other variables to that model to create the best accuracy for predicting exit status. 
 
 
-# Appendix
+
+
+
+
+
+
+
 
 
 
