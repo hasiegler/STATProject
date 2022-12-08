@@ -291,7 +291,7 @@ a very low total transaction amount and a low total transaction count,
 which may be the reason for why it has a Cook’s D value so much greater
 than the other observations.
 
-## Fit a Linear Model
+### Fit a Linear Model
 
 Final Model:
 

@@ -1,7 +1,7 @@
 ---
 title: "Predicting Credit Card Customer Total Transactions and If They Exit the Company"
 author: "Team 4: Henry Siegler, Jake Ketchner, Esteban Anderson"
-output: github_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
